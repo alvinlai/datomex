@@ -5,7 +5,7 @@ defmodule Datomex.Mixfile do
     [app: :datomex,
      version: "0.0.6",
      elixir: "~> 1.2",
-     deps: deps,
+     deps: deps(),
      package: [
        contributors: ["Eric West"],
        licenses: ["MIT"],
