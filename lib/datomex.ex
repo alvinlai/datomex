@@ -55,21 +55,21 @@ defmodule Datomex do
 
   """
   def storages do
-    HTTPoison.get("#{root}data/")
+    HTTPoison.get("#{root()}data/")
   end
 
   @doc """
   Get a list of Datomic databases from the configured alias.
   """
   def databases do
-    HTTPoison.get("#{root}data/#{alias_db}/")
+    HTTPoison.get("#{root()}data/#{alias_db()}/")
   end
 
   @doc """
   Get a list of Datomic databases from a passed in alias.
   """
   def databases(alias_name) do
-    HTTPoison.get("#{root}data/#{alias_name}/")
+    HTTPoison.get("#{root()}data/#{alias_name}/")
   end
 
   @doc """
@@ -78,7 +78,7 @@ defmodule Datomex do
   def create_database(name) do
     params = %{"db-name": name}
              |> URI.encode_query
-    HTTPoison.post("#{root}data/#{alias_db}/?" <> params, "")
+    HTTPoison.post("#{root()}data/#{alias_db()}/?" <> params, "")
   end
 
   @doc """
@@ -87,7 +87,7 @@ defmodule Datomex do
   def create_database(alias_name, name) do
     params = %{"db-name": name}
              |> URI.encode_query
-    HTTPoison.post("#{root}data/#{alias_name}/?" <> params, "")
+    HTTPoison.post("#{root()}data/#{alias_name}/?" <> params, "")
   end
 
   @doc """
@@ -113,7 +113,7 @@ defmodule Datomex do
   def transact(data) do
     params = %{"tx-data": data}
       |> URI.encode_query
-    HTTPoison.post("#{db_uri}?" <> params, "", %{"Accept-Header" => "application/edn"})
+    HTTPoison.post("#{db_uri()}?" <> params, "", %{"Accept-Header" => "application/edn"})
   end
 
   @doc """
@@ -122,7 +122,7 @@ defmodule Datomex do
   def datoms(index) do
     params = %{"index": index}
       |> URI.encode_query
-    HTTPoison.get "#{db_uri_}datoms?#{params}"
+    HTTPoison.get "#{db_uri_()}datoms?#{params}"
   end
 
   @doc """
@@ -132,7 +132,7 @@ defmodule Datomex do
     params = %{index: index}
       |> Enum.into(opts)
       |> URI.encode_query
-    HTTPoison.get "#{db_uri_}datoms?#{params}"
+    HTTPoison.get "#{db_uri_()}datoms?#{params}"
   end
 
   @doc """
@@ -141,14 +141,14 @@ defmodule Datomex do
   def index_range(index, attrid) do
     params = %{index: index, a: attrid}
       |> URI.encode_query
-    HTTPoison.get "#{db_uri_}datoms?#{params}"
+    HTTPoison.get "#{db_uri_()}datoms?#{params}"
   end
   
   def index_range(index, attrid, opts) do
     params = %{index: index, a: attrid}
       |> Enum.into(opts)
       |> URI.encode_query
-    HTTPoison.get "#{db_uri_}datoms?#{params}"
+    HTTPoison.get "#{db_uri_()}datoms?#{params}"
   end
   
   @doc """
@@ -157,20 +157,20 @@ defmodule Datomex do
   def entity(opts) when is_map(opts) do
     params = opts
       |> URI.encode_query
-    HTTPoison.get "#{db_uri_}entity?#{params}"
+    HTTPoison.get "#{db_uri_()}entity?#{params}"
   end
 
   def entity(eid) do
     params = %{e: eid}
       |> URI.encode_query
-    HTTPoison.get "#{db_uri_}entity?#{params}"
+    HTTPoison.get "#{db_uri_()}entity?#{params}"
   end
   
   def entity(eid, opts) do
     params = %{e: eid}
       |> Enum.into(opts)
       |> URI.encode_query
-    HTTPoison.get "#{db_uri_}entity?#{params}"
+    HTTPoison.get "#{db_uri_()}entity?#{params}"
   end
 
   @doc """
@@ -179,29 +179,29 @@ defmodule Datomex do
       Datomex.q(~s([:find ?m :where [?m :movie/title "trainspotting"]]))
   """
   def q(query) do
-    params = %{q: query, args: "[{:db/alias \"#{db_alias}\"}]"}
+    params = %{q: query, args: "[{:db/alias \"#{db_alias()}\"}]"}
       |> URI.encode_query
-    HTTPoison.get "#{root}api/query?#{params}"
+    HTTPoison.get "#{root()}api/query?#{params}"
   end
 
   def q(query, opts) when is_map(opts) do
-    params = %{q: query, args: "[{:db/alias \"#{db_alias}\"}]"}
+    params = %{q: query, args: "[{:db/alias \"#{db_alias()}\"}]"}
       |> Enum.into(opts)
       |> URI.encode_query
-    HTTPoison.get "#{root}api/query?#{params}"
+    HTTPoison.get "#{root()}api/query?#{params}"
   end
 
   def q(query, args) do
     params = %{q: query, args: args}
       |> URI.encode_query
-    HTTPoison.get "#{root}api/query?#{params}"
+    HTTPoison.get "#{root()}api/query?#{params}"
   end
 
   def q(query, args, opts) do
     params = %{q: query, args: args}
       |> Enum.into(opts)
       |> URI.encode_query
-    HTTPoison.get "#{root}api/query?#{params}"
+    HTTPoison.get "#{root()}api/query?#{params}"
   end
 
   # Helper functions
@@ -209,10 +209,10 @@ defmodule Datomex do
     Agent.get(:config, &Map.get(&1, elem))
   end
 
-  defp root, do: "http://#{server}:#{port}/"
-  defp db_alias, do: alias_db <> "/" <> name
-  defp db_uri, do: "#{root}data/#{db_alias}/"
-  defp db_uri_, do: db_uri <> "-/"
+  defp root, do: "http://#{server()}:#{port()}/"
+  defp db_alias, do: alias_db() <> "/" <> name()
+  defp db_uri, do: "#{root()}data/#{db_alias()}/"
+  defp db_uri_, do: db_uri() <> "-/"
   defp server, do: get_config(:server)
   defp port, do: get_config(:port)
   defp alias_db, do: get_config(:alias_db)
